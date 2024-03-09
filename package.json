@@ -1,15 +1,27 @@
 {
-  "name": "mutex-guard",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
-  }
+    "name": "mutex-guard",
+    "version": "1.0.0",
+    "description": "Mutex implementation for synchronizing access to shared resources in Node.js applications.",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc"
+    },
+    "keywords": [
+        "mutex",
+        "lock",
+        "async-mutex",
+        "mutexjs",
+        "guard"
+    ],
+    "author": "rouzbehsbz",
+    "license": "MIT",
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rouzbehsbz/mutex-guard.git"
+    }
 }
