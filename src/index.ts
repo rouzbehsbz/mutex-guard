@@ -10,11 +10,14 @@ class MutexGuard extends EventEmitter {
         this.isLocked = false;
         this.queue = [];
 
-        this.addListener(this.getProcessQueueEventName(), this.processQueueHandler.bind(this));
+        this.addListener(
+            this.getProcessQueueEventName(),
+            this.processQueueHandler.bind(this),
+        );
     }
 
     private getProcessQueueEventName() {
-        return 'processQueue';
+        return "processQueue";
     }
 
     private getWaitingJobEventName(index: number) {
@@ -31,7 +34,7 @@ class MutexGuard extends EventEmitter {
         this.emit(waitingJobEventName);
     }
 
-    public async lock() {
+    public async lock(): Promise<true> {
         return new Promise((resolve, _) => {
             if (this.isLocked) {
                 const index = this.queue.length;
@@ -41,14 +44,13 @@ class MutexGuard extends EventEmitter {
 
                 this.prependOnceListener(waitingJobEvent, () => {
                     this.isLocked = true;
-                    return resolve(null);
-                })
-            }
-            else {
+                    return resolve(true);
+                });
+            } else {
                 this.isLocked = true;
-                return resolve(null);
+                return resolve(true);
             }
-        })
+        });
     }
 
     public unlock() {
