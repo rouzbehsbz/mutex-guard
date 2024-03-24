@@ -1,62 +1,33 @@
-import { EventEmitter } from "events";
+class Deffered<T> {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.reject = reject;
+      this.resolve = resolve;
+    });
+  }
+  resolve!: (value: T | PromiseLike<T>) => void;
+  reject!: (value: T | PromiseLike<T>) => void;
+  promise: Promise<T>;
+}
 
-class MutexGuard extends EventEmitter {
-    private isLocked: boolean;
-    private queue: string[];
+class MutexGuard {
+  private queue: Deffered<void>[];
 
-    constructor() {
-        super();
+  constructor() {
+    this.queue = [];
+  }
 
-        this.isLocked = false;
-        this.queue = [];
+  public lock() {
+    const prev = this.queue.at(-1);
+    const deffered = new Deffered<void>();
+    this.queue.push(deffered);
+    return prev?.promise || Promise.resolve();
+  }
 
-        this.addListener(
-            this.getProcessQueueEventName(),
-            this.processQueueHandler.bind(this),
-        );
-    }
-
-    private getProcessQueueEventName() {
-        return "processQueue";
-    }
-
-    private getWaitingJobEventName(index: number) {
-        return `waitingJob:${index}`;
-    }
-
-    private async processQueueHandler() {
-        const waitingJobEventName = this.queue.pop();
-
-        if (!waitingJobEventName) {
-            return;
-        }
-
-        this.emit(waitingJobEventName);
-    }
-
-    public async lock(): Promise<true> {
-        return new Promise((resolve, _) => {
-            if (this.isLocked) {
-                const index = this.queue.length;
-                const waitingJobEvent = this.getWaitingJobEventName(index);
-
-                this.queue.push(waitingJobEvent);
-
-                this.prependOnceListener(waitingJobEvent, () => {
-                    this.isLocked = true;
-                    return resolve(true);
-                });
-            } else {
-                this.isLocked = true;
-                return resolve(true);
-            }
-        });
-    }
-
-    public unlock() {
-        this.isLocked = false;
-        this.emit(this.getProcessQueueEventName());
-    }
+  public unlock() {
+    const item = this.queue.shift();
+    item?.resolve();
+  }
 }
 
 export default MutexGuard;
