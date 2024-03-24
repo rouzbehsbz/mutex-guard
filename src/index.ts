@@ -17,10 +17,11 @@ class MutexGuard {
     this.queue = [];
   }
 
-  public async lock() {
+  public lock() {
+    const prev = this.queue.at(-1);
     const deffered = new Deffered<void>();
     this.queue.push(deffered);
-    return deffered.promise;
+    return prev?.promise || Promise.resolve();
   }
 
   public unlock() {
